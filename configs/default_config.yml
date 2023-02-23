@@ -1,0 +1,20 @@
+self:
+  host: 0.0.0.0
+  port: 30000
+  debug: false
+  auth_token: 1145141919810!@#@#$#$$%^QWEwerERTrty
+
+http:
+  afd_user_id: 1145141919810abc
+  afd_api_token: 1145141919810abc
+
+webhook:
+  enabled: false
+  point: /webhook  # 接受 afdian 平台方信息的节点
+
+db:
+  username: root
+  password: ""
+  host: localhost
+  port: 3306
+  db_name: test
