@@ -2,16 +2,34 @@ package db
 
 import (
 	"afd-support/configs"
+	"afd-support/lib"
 	"database/sql"
 	"fmt"
+	"os"
 	"strconv"
 	"time"
 
+	sqlite "github.com/FloatTech/sqlite"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/sirupsen/logrus"
 )
 
-var Database *sql.DB
+var (
+	Database       *sql.DB
+	DatabaseSqlite *sqlite.Sqlite
+)
+
+const dbDir = "data/db/"
+
+func init() {
+	exi := lib.IsDir(dbDir)
+	if !exi {
+		err := os.MkdirAll(dbDir, 0755)
+		if err != nil {
+			panic("创建数据库文件夹失败，请尝试手动创建: data/db")
+		}
+	}
+}
 
 func InitDb() {
 	dbConf := configs.Conf.Db
@@ -33,6 +51,13 @@ func InitDb() {
 	var version string
 	Database.QueryRow("SELECT VERSION()").Scan(&version)
 	logrus.Info("数据库版本: " + version)
+
+	DatabaseSqlite = &sqlite.Sqlite{DBPath: dbDir + "sqlite.db"}
+	err = DatabaseSqlite.Open(time.Minute * 15)
+	if err != nil {
+		logrus.Error("sqlite 数据库连接失败")
+		logrus.Fatal(err)
+	}
 }
 
 func DoSearch(t, k1, k2, k3 string) (string, error) {
@@ -40,7 +65,6 @@ func DoSearch(t, k1, k2, k3 string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	defer do.Close()
 
 	var att string
 	err = do.QueryRow(k3).Scan(&att)

@@ -55,4 +55,5 @@ func main() {
 
 	db.InitDb()
 	defer db.Database.Close()
+	defer db.DatabaseSqlite.Close()
 }

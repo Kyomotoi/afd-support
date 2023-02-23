@@ -2,7 +2,9 @@ package afdian
 
 import (
 	"afd-support/db"
+	"database/sql"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"time"
@@ -19,10 +21,21 @@ func Webhook(rw http.ResponseWriter, req *http.Request) {
 		logrus.Error("webhook：解析返回数据失败")
 		return
 	}
-	logrus.Info("webhook: 新订单请求，订单号 ", a.Data.Order.OutTradeNo)
+	logrus.Info(fmt.Sprintf("webhook: 新订单请求，订单号 %s from %s", a.Data.Order.OutTradeNo, a.Data.Order.UserID))
 	rw.Write([]byte(`{"ec":200}`))
 
-	dIns, _ := db.Database.Prepare("INSERT INTO `afdian_orders` (order_no, time, user_id, consumed)VALUES(?, ?, ?, ?)")
+	var dIns *sql.Stmt
+
+	_, err = db.DoSearch("afdian_users", "user_name", "user_id", a.Data.Order.UserID)
+	if err != nil {
+		logrus.Warn(fmt.Sprintf("%s 为新用户", a.Data.Order.UserID))
+		dIns, _ := db.Database.Prepare("INSERT INTO `afdian_users` (user_id, user_name) VALUES (?, ?)")
+		defer dIns.Close()
+		_, _ = dIns.Exec(a.Data.Order.UserID, "")
+		// TODO: 摆烂
+	}
+
+	dIns, _ = db.Database.Prepare("INSERT INTO `afdian_orders` (order_no, time, user_id, consumed) VALUES (?, ?, ?, ?)")
 	defer dIns.Close()
 	_, err = dIns.Exec(a.Data.Order.OutTradeNo, time.Now().Unix(), a.Data.Order.UserID, 0)
 	if err != nil {
