@@ -51,9 +51,9 @@ func handleRequest() {
 func main() {
 	logrus.Info("将运行于端口: ", conf.Self.Port)
 
-	handleRequest()
-
 	db.InitDb()
 	defer db.Database.Close()
-	defer db.DatabaseSqlite.Close()
+	// defer db.DatabaseSqlite.Close()
+
+	handleRequest()
 }

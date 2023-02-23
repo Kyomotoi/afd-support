@@ -52,12 +52,13 @@ func InitDb() {
 	Database.QueryRow("SELECT VERSION()").Scan(&version)
 	logrus.Info("数据库版本: " + version)
 
-	DatabaseSqlite = &sqlite.Sqlite{DBPath: dbDir + "sqlite.db"}
-	err = DatabaseSqlite.Open(time.Minute * 15)
-	if err != nil {
-		logrus.Error("sqlite 数据库连接失败")
-		logrus.Fatal(err)
-	}
+	// TODO
+	// DatabaseSqlite = &sqlite.Sqlite{DBPath: dbDir + "sqlite.db"}
+	// err = DatabaseSqlite.Open(time.Minute * 15)
+	// if err != nil {
+	// 	logrus.Error("sqlite 数据库连接失败")
+	// 	logrus.Fatal(err)
+	// }
 }
 
 func DoSearch(t, k1, k2, k3 string) (string, error) {
