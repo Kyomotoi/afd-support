@@ -2,6 +2,7 @@ package api
 
 import (
 	"afd-support/afdian"
+	"afd-support/configs"
 	"crypto/md5"
 	"encoding/json"
 	"errors"
@@ -9,12 +10,13 @@ import (
 	"io"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/sirupsen/logrus"
 )
 
-func auth(token string, params string, ts int, _md5 string) bool {
-	content := fmt.Sprintf("token%sparams%sts%s", token, params, strconv.Itoa(ts))
+func auth(token string, data string, ts int, _md5 string) bool {
+	content := fmt.Sprintf("token%sdata%sts%s", token, data, strconv.Itoa(ts))
 	has := fmt.Sprintf("%s", md5.Sum([]byte(content)))
 	return has == _md5
 }
@@ -29,9 +31,16 @@ func New(token string, AfdianToken string, AfdianUserID string) *APIService {
 	}
 }
 
-func (a *APIService) prepare(r *http.Request) (string, *APIRequest, error) {
+func (a *APIService) prepare(c *Context) (string, *APIRequest, error) {
+	if configs.Conf.API.IsLimitHost {
+		if configs.Conf.API.Only != strings.Split(c.req.RemoteAddr, ":")[0] {
+			logrus.Warn(fmt.Sprintf("外界请求 %s 已拦截", c.req.Host))
+			return "拦截外界请求", &APIRequest{}, errors.New("out of limit of config")
+		}
+	}
+
 	ar := &APIRequest{}
-	body, _ := io.ReadAll(r.Body)
+	body, _ := io.ReadAll(c.req.Body)
 	err := json.Unmarshal(body, ar)
 	if err != nil {
 		logrus.Error("API 解析返回数据失败")
@@ -39,11 +48,11 @@ func (a *APIService) prepare(r *http.Request) (string, *APIRequest, error) {
 	}
 
 	if !auth(ar.Token, ar.Data, ar.Ts, ar.Auth) {
-		logrus.Info(fmt.Sprintf("API %s(x): %s", r.Method, ar.Data))
+		logrus.Info(fmt.Sprintf("API %s(x): %s", c.req.Method, ar.Data))
 		return "验证未通过", &APIRequest{}, errors.New("校验未通过")
 	}
 
-	logrus.Info(fmt.Sprintf("API %s(v): %s", r.Method, ar.Data))
+	logrus.Info(fmt.Sprintf("API %s(v): %s", c.req.Method, ar.Data))
 
 	return "OK", ar, nil
 }
@@ -55,7 +64,7 @@ func (a *APIService) GetOrders(rw http.ResponseWriter, req *http.Request) {
 		req: req,
 	}
 
-	msg, ar, err := a.prepare(req)
+	msg, ar, err := a.prepare(c)
 	if err != nil {
 		c.Send(403, msg)
 		return
@@ -78,7 +87,7 @@ func (a *APIService) GetSponsorsWithPage(rw http.ResponseWriter, req *http.Reque
 		req: req,
 	}
 
-	msg, ar, err := a.prepare(req)
+	msg, ar, err := a.prepare(c)
 	if err != nil {
 		c.Send(403, msg)
 		return
@@ -101,7 +110,7 @@ func (a *APIService) GetUserIDByURL(rw http.ResponseWriter, req *http.Request) {
 		req: req,
 	}
 
-	msg, ar, err := a.prepare(req)
+	msg, ar, err := a.prepare(c)
 	if err != nil {
 		c.Send(403, msg)
 		return
