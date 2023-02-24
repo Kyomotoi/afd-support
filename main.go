@@ -35,7 +35,7 @@ func init() {
 }
 
 func handleRequest() {
-	aFapi := api.New(conf.Self.AuthToken, conf.HTTP.AfdAPIToken, conf.HTTP.AfdUserID)
+	aFapi := api.New(conf.API.APIToken, conf.Afdian.APIToken, conf.Afdian.UserID)
 
 	http.HandleFunc("/order", aFapi.GetOrders)
 	http.HandleFunc("/sponsors", aFapi.GetSponsorsWithPage)
@@ -52,8 +52,8 @@ func main() {
 	logrus.Info("将运行于端口: ", conf.Self.Port)
 
 	db.InitDb()
-	defer db.Database.Close()
-	// defer db.DatabaseSqlite.Close()
+	defer db.DbM.Close()
+	defer db.DbS.Close()
 
 	handleRequest()
 }
