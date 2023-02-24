@@ -2,15 +2,19 @@ package configs
 
 type Config struct {
 	Self struct {
-		Host      string `yaml:"host"`
-		Port      int    `yaml:"port"`
-		Debug     bool   `yaml:"debug"`
-		AuthToken string `yaml:"auth_token"`
+		Host  string `yaml:"host"`
+		Port  int    `yaml:"port"`
+		Debug bool   `yaml:"debug"`
 	} `yaml:"self"`
-	HTTP struct {
-		AfdUserID   string `yaml:"afd_user_id"`
-		AfdAPIToken string `yaml:"afd_api_token"`
-	} `yaml:"http"`
+	Afdian struct {
+		UserID   string `yaml:"user_id"`
+		APIToken string `yaml:"api_token"`
+	} `yaml:"afdian"`
+	API struct {
+		APIToken    string `yaml:"api_token"`
+		IsLimitHost bool   `yaml:"is_limit_host"`
+		Only        string `yaml:"only"`
+	} `yaml:"api"`
 	Webhook struct {
 		Enabled bool   `yaml:"enabled"`
 		Point   string `yaml:"point"`

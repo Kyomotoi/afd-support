@@ -1,12 +1,17 @@
 self:
-  host: 0.0.0.0
-  port: 30000
-  debug: false
-  auth_token: 1145141919810!@#@#$#$$%^QWEwerERTrty
+  host: 0.0.0.0  # 对外开放的 host 地址
+  port: 30000  # 对外开放的端口
+  debug: true
 
-http:
-  afd_user_id: 1145141919810abc
-  afd_api_token: 1145141919810abc
+afdian:  # 请求 Afdian API 所需信息，获取：https://afdian.net/dashboard/dev
+  user_id: 1145141919810abc
+  api_token: 1145141919810abc
+
+api:
+  api_token: 1145141919810!@#@#$#$$%^QWEwerERTrty  # 请求 API 时配合验证的密钥
+
+  is_limit_host: false  # 限制请求来源
+  only: ""
 
 webhook:
   enabled: false
