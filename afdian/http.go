@@ -105,7 +105,7 @@ func (a *AfdianAPIService) QuerySponsorWithPage(page string) (*AfdianQueryRespon
 }
 
 func GetUserIDbyProfileURL(profileURL string) (*AfdianProfileResponse, error) {
-	reg := regexp.MustCompile("https://afdian.net/a/(.*)")
+	reg := regexp.MustCompile("afdian.net/a/(.*)")
 	if matched := reg.FindStringSubmatch(profileURL); matched != nil {
 		url := getProfileURL + matched[1]
 		req, err := http.NewRequest("GET", url, nil)
