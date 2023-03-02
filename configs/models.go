@@ -11,13 +11,16 @@ type Config struct {
 		APIToken string `yaml:"api_token"`
 	} `yaml:"afdian"`
 	API struct {
-		APIToken    string `yaml:"api_token"`
-		IsLimitHost bool   `yaml:"is_limit_host"`
-		Only        string `yaml:"only"`
+		APIToken          string `yaml:"api_token"`
+		OrderEndpoint     string `yaml:"order_endpoint"`
+		SponsorsEndpoint  string `yaml:"sponsors_endpoint"`
+		GetuseridEndpoint string `yaml:"getuserid_endpoint"`
+		IsLimitHost       bool   `yaml:"is_limit_host"`
+		Only              string `yaml:"only"`
 	} `yaml:"api"`
 	Webhook struct {
-		Enabled bool   `yaml:"enabled"`
-		Point   string `yaml:"point"`
+		Enabled  bool   `yaml:"enabled"`
+		Endpoint string `yaml:"endpoint"`
 	} `yaml:"webhook"`
 	Db struct {
 		Username string `yaml:"username"`

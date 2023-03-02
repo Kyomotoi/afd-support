@@ -9,13 +9,16 @@ afdian:  # 请求 Afdian API 所需信息，获取：https://afdian.net/dashboar
 
 api:
   api_token: 1145141919810!@#@#$#$$%^QWEwerERTrty  # 请求 API 时配合验证的密钥
+  order_endpoint: /order
+  sponsors_endpoint: /sponsors
+  getuserid_endpoint: /getuseid
 
   is_limit_host: false  # 限制请求来源
   only: ""
 
 webhook:
   enabled: false
-  point: /webhook  # 接受 afdian 平台方信息的节点
+  endpoint: /webhook  # 接受 afdian 平台方信息的节点
 
 db:
   username: root
