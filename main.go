@@ -11,7 +11,6 @@ import (
 	"strconv"
 	"time"
 
-	_ "github.com/go-sql-driver/mysql"
 	"github.com/sirupsen/logrus"
 )
 
@@ -37,23 +36,31 @@ func init() {
 func handleRequest() {
 	aFapi := api.New(conf.API.APIToken, conf.Afdian.APIToken, conf.Afdian.UserID)
 
-	http.HandleFunc("/order", aFapi.GetOrders)
-	http.HandleFunc("/sponsors", aFapi.GetSponsorsWithPage)
-	http.HandleFunc("/getuserid", aFapi.GetUserIDByURL)
+	http.HandleFunc(conf.API.OrderEndpoint, aFapi.GetOrders)
+	http.HandleFunc(conf.API.SponsorsEndpoint, aFapi.GetSponsorsWithPage)
+	http.HandleFunc(conf.API.GetuseridEndpoint, aFapi.GetUserIDByURL)
 
 	if conf.Webhook.Enabled {
-		http.HandleFunc(conf.Webhook.Point, afdian.Webhook)
+		http.HandleFunc(conf.Webhook.Endpoint, afdian.Webhook)
 	}
 
-	logrus.Fatal(http.ListenAndServe(fmt.Sprintf("%s:%s", conf.Self.Host, strconv.Itoa(conf.Self.Port)), nil))
+	logrus.Fatal(http.ListenAndServe(
+		fmt.Sprintf("%s:%s", conf.Self.Host, strconv.Itoa(conf.Self.Port)), nil,
+	))
 }
 
 func main() {
 	logrus.Info("将运行于端口: ", conf.Self.Port)
 
-	db.InitDb()
-	defer db.DbM.Close()
+	db.InitDB()
 	defer db.DbS.Close()
+
+	sche := lib.Scheduler
+	_ = sche.AddFunc("0 0 0/3 * * ? ", func() {
+		db.DbSync()
+	})
+
+	lib.InitSchedule()
 
 	handleRequest()
 }
