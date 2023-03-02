@@ -27,7 +27,7 @@ func Webhook(rw http.ResponseWriter, req *http.Request) {
 	var do *gorm.DB
 	var result map[string]interface{} = make(map[string]interface{})
 	db.DbM.Model(&db.AfdianUsers{}).First(&result, "user_id = ?", a.Data.Order.UserID)
-	if result != nil {
+	if len(result) == 0 {
 		logrus.Warn(a.Data.Order.UserID + " 为新用户")
 		if do = db.DbM.Create(&db.AfdianUsers{
 			UserID:   a.Data.Order.UserID,
@@ -45,7 +45,7 @@ func Webhook(rw http.ResponseWriter, req *http.Request) {
 	}
 
 	db.DbM.Model(&db.AfdianOrders{}).First(&result, "order_no = ?", a.Data.Order.OutTradeNo)
-	if result != nil {
+	if len(result) == 0 {
 		if do = db.DbM.Create(&db.AfdianOrders{
 			OrderNo:  a.Data.Order.OutTradeNo,
 			Time:     time.Now().Unix(),
