@@ -6,3 +6,8 @@ type AfdianOrders struct {
 	UserID   string
 	Consumed int
 }
+
+type AfdianUsers struct {
+	UserID   string
+	UserName string
+}
