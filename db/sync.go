@@ -36,6 +36,7 @@ func DbSync() error {
 	}
 
 	logrus.Info(fmt.Sprintf("本地数据库已记录：%s 位用户, %s 个订单", strconv.Itoa(auNum), strconv.Itoa(aoNum)))
+	var result map[string]interface{} = make(map[string]interface{})
 	if auNum != 0 {
 		for i := 0; i < auNum; i++ {
 			var au *AfdianUsers
@@ -44,7 +45,6 @@ func DbSync() error {
 				logrus.Error("从本地获取用户数据失败，本次同步失败")
 				return err
 			}
-			result := map[string]interface{}{}
 			DbM.Model(&AfdianUsers{}).First(&result, "user_id = ?", au.UserID)
 			if result != nil {
 				continue
@@ -68,8 +68,7 @@ func DbSync() error {
 				logrus.Error("从本地获取用户数据失败，本次同步失败")
 				return err
 			}
-			result := map[string]interface{}{}
-			DbM.Model(&AfdianOrders{}).First(&result, "order_no", ao.OrderNo)
+			DbM.Model(&AfdianOrders{}).First(&result, "order_no = ?", ao.OrderNo)
 			if result != nil {
 				continue
 			} else {

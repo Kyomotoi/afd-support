@@ -25,7 +25,7 @@ func Webhook(rw http.ResponseWriter, req *http.Request) {
 	rw.Write([]byte(`{"ec":200}`))
 
 	var do *gorm.DB
-	result := map[string]interface{}{}
+	var result map[string]interface{} = make(map[string]interface{})
 	db.DbM.Model(&db.AfdianUsers{}).First(&result, "user_id = ?", a.Data.Order.UserID)
 	if result != nil {
 		logrus.Warn(a.Data.Order.UserID + " 为新用户")
@@ -43,21 +43,27 @@ func Webhook(rw http.ResponseWriter, req *http.Request) {
 			}
 		}
 	}
-	if do = db.DbM.Create(&db.AfdianOrders{
-		OrderNo:  a.Data.Order.OutTradeNo,
-		Time:     time.Now().Unix(),
-		UserID:   a.Data.Order.UserID,
-		Consumed: 0,
-	}); do.Error != nil {
-		logrus.Error("远程数据库写入失败，将写入本地 sqlite 数据库")
-		err = db.DbS.Insert("afdian_users", &db.AfdianOrders{
+
+	db.DbM.Model(&db.AfdianOrders{}).First(&result, "order_no = ?", a.Data.Order.OutTradeNo)
+	if result != nil {
+		if do = db.DbM.Create(&db.AfdianOrders{
 			OrderNo:  a.Data.Order.OutTradeNo,
 			Time:     time.Now().Unix(),
 			UserID:   a.Data.Order.UserID,
 			Consumed: 0,
-		})
-		if err != nil {
-			logrus.Error("本地数据库写入失败，将跳过本次记录")
+		}); do.Error != nil {
+			logrus.Error("远程数据库写入失败，将写入本地 sqlite 数据库")
+			err = db.DbS.Insert("afdian_users", &db.AfdianOrders{
+				OrderNo:  a.Data.Order.OutTradeNo,
+				Time:     time.Now().Unix(),
+				UserID:   a.Data.Order.UserID,
+				Consumed: 0,
+			})
+			if err != nil {
+				logrus.Error("本地数据库写入失败，将跳过本次记录")
+			}
 		}
+	} else {
+		logrus.Info("该订单已有记录，跳过")
 	}
 }
