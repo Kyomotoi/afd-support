@@ -49,7 +49,7 @@ func DbSync() error {
 			if result != nil {
 				continue
 			} else {
-				if do := DbM.Model(&AfdianUsers{}).Updates(&AfdianUsers{
+				if do := DbM.Create(&AfdianUsers{
 					UserID:   au.UserID,
 					UserName: au.UserName,
 				}); do.Error != nil {
@@ -73,7 +73,7 @@ func DbSync() error {
 			if result != nil {
 				continue
 			} else {
-				if do := DbM.Model(&AfdianUsers{}).Updates(&AfdianOrders{
+				if do := DbM.Create(&AfdianOrders{
 					OrderNo:  ao.OrderNo,
 					Time:     ao.Time,
 					UserID:   ao.UserID,

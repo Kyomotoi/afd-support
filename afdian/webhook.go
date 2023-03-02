@@ -29,7 +29,7 @@ func Webhook(rw http.ResponseWriter, req *http.Request) {
 	db.DbM.Model(&db.AfdianUsers{}).First(&result, "user_id = ?", a.Data.Order.UserID)
 	if result == nil {
 		logrus.Warn(a.Data.Order.UserID + " 为新用户")
-		if do = db.DbM.Model(&db.AfdianUsers{}).Updates(&db.AfdianUsers{
+		if do = db.DbM.Create(&db.AfdianUsers{
 			UserID:   a.Data.Order.UserID,
 			UserName: "",
 		}); do.Error != nil {
@@ -43,8 +43,7 @@ func Webhook(rw http.ResponseWriter, req *http.Request) {
 			}
 		}
 	}
-
-	if do = db.DbM.Model(&db.AfdianOrders{}).Updates(&db.AfdianOrders{
+	if do = db.DbM.Create(&db.AfdianOrders{
 		OrderNo:  a.Data.Order.OutTradeNo,
 		Time:     time.Now().Unix(),
 		UserID:   a.Data.Order.UserID,
